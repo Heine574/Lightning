@@ -1,0 +1,19 @@
+script = eval("
+temp = function(system, args) {
+	console.log(\"temp = function(system, args) {\" + args[0].run(system) + \"}\");
+	return system.vars.eval.execute(system, [
+		StringExpression(\"temp = function(system, args) {\" + args[0].run(system) + \"}\")
+	]);
+}
+");
+clearShell = script("
+	system.shell = [];
+	return AutoExp(system, \"True\");
+");
+editLast = script("
+	system.shell[system.shell.length-1] = args[0].run(system);
+	return AutoExp(system, \"True\");
+");
+clearLast = script("
+	return StringExpression(system.shell.pop());
+");

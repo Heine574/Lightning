@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OS-Lightning</title>
+</head>
+<body>
+<div id="content" style="margin:0px;">
+
+<div id="mainscreen" style="margin:0px;">
+<canvas id="canvas" tabindex=0 width=window.innerWidth height=window.innerHeight style="width:100%; height:100%; margin:0px; border:0px solid #000000; position:absolute; left:0px; top:0px; cursor: none;"></canvas>
+</div>
+
+</div>
+
+<script src="cloud.js"></script>
+<script src="3d.js"></script>
+<script src="math.js"></script>
+<script src="system.js"></script>
+<script>
+document.getElementById("canvas").focus();
+//start(OS, 'home\\taskbar.exe'); <p id="data"></p>
+//start(OS, 'cloud://hmi.com/boot files/3d.lightning');
+start(OS, 'cloud://hmi.com/boot files/startup.lightning');
+//start(OS, 'cloud://hmi.com/boot files/demo.lightning');
+//start(OS, 'cloud://skylands.com/skylands.lightning');
+//start(OS, 'cloud://gaia.com/Gadoran/gadoran.lightning');
+</script>
+</body>
+</html>

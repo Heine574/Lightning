@@ -1,0 +1,4 @@
+mark top;$
+if {(index 2 keys) != ""} then println ((index 2 keys) join (index 3 keys) join (index 4 keys));$
+push 0;$
+if {(index 2 keys) != ""} then goto_mark top;

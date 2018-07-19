@@ -1,0 +1,23 @@
+fps(60);
+del_sprites();
+screen_height = 635;
+font = "30px sans-serif";
+background(rgb(0, 0, 0));
+printcolor(rgb(255, 255, 255));
+println("Initializing Lightning 0.5");
+boot_files = list(
+	"OS-Lightning 0.5"
+);
+boot_files_paths = list(
+	"cloud:hmi.com/boot files/lightning_boot.lightning"
+);
+println("\n\n\n\n\n	BOOT MENU\n\n");
+i = 0;
+mark("loop1");
+save_file(index(i, boot_files), load_file(index(i, boot_files_paths)));
+println("	" + str(i + 1) + ". " + index(i, boot_files));
+i = (i + 1);
+if(lesser_than(i, len(boot_files)), goto_mark("loop1"));
+#input("\n	Choose from the list of avalible systems by typing in its number:\n     ");
+answer = 1;
+import(index(int(answer) - 1, boot_files));

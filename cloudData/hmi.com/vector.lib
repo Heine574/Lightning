@@ -1,0 +1,81 @@
+matrix = eval("
+temp = function(system, args) {
+	var m = args[0].run(system);
+	return {
+		type: \"Matrix\",
+		items: m,
+		run: function(system) {return this.items;},
+		execute: function(system, args) {return this;},
+		add: function(system, v) {
+			if (v.type == \"Matrix\") {
+				if (v.items.length == this.items.length && v.items[0].length == this.items[0].length) {
+					var m = system.vars.matrix.execute(system, [ListExpression([])]);
+					m.items = math.add(this.items, v.items);
+					return m;
+				} else {
+					return Raise(\"ValueError: matrices don't match\").run(system);
+				}
+			}
+		},
+		multiply: function(system, v) {
+			if (v.type == \"Matrix\") {
+				if (v.items[0].length == this.items.length) {
+					var m = system.vars.matrix.execute(system, [ListExpression([])]);
+					m.items = math.multiply(this.items, v.items);
+					return m;
+				} else {
+					return Raise(\"ValueError: matrices don't match\").run(system);
+				}
+			}
+		},
+		str: function(system, v) {
+			var l = [];
+			for (var i = 0; i < this.items.length; i++) {
+				l.push(this.items[i].toString());
+			}
+			return StringExpression(\"Matrix:\\n\" + l.join('\\n'));
+		}
+	};
+}
+");
+
+vector = eval("
+temp = function(system, args) {
+	return {
+		type: \"Vector\",
+		x: args[0].execute(system),
+		y: args[1].execute(system),
+		run: function(system) {return [[this.x.num], [this.y.num]];},
+		execute: function(system, args) {return this;},
+		add: function(system, v) {
+			if (v.type == \"Vector\") {
+				return system.vars.vector.execute(system, [this.x.add(system, v.x), this.y.add(system, v.y)]);
+			}
+		},
+		str: function(system, v) {
+			return StringExpression(
+			\"Vector [\" + this.x.run(system).toString() + \", \" +  + this.y.run(system).toString() + \"]\"
+			);
+		}
+	};
+}
+");
+
+transpose = eval("
+temp = function(system, args) {
+	var m = system.vars.matrix.execute(system, [ListExpression([])]);
+	m.items = math.transpose(args[0].run(system));
+	return m;
+}
+");
+
+project_onto = eval("
+temp = function(system, args) {
+	var x = args[0].run(system);
+	var b = args[1].run(system);
+	var r = math.round(math.multiply(math.divide(math.multiply(math.transpose(x), b), math.norm(b, \"fro\")**2)[0][0], b), 15);
+	var m = system.vars.matrix.execute(system, [ListExpression([])]);
+	m.items = r;
+	return m;
+}
+");

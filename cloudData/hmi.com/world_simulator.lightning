@@ -1,0 +1,37 @@
+World = eval("
+temp = function(system, args) {
+	var l = [];
+	for (var x = 0; x < 1366; x++) {
+		l.push([]);
+		for (var y = 0; y < 600; y++) {
+			l[x].push(0);
+		}
+	}
+	return {
+		type: \"World\",
+		grid: l,
+		run: function(system) {return this.grid;},
+		execute: function(system, args) {return this;}
+	}
+}
+");
+
+tick = eval("
+temp = function(system, args) {
+	var l = [];
+	for (var x = 0; x < 1366; x++) {
+		l.push([]);
+		for (var y = 0; y < 600; y++) {
+			l[x].push(0);
+		}
+	}
+	return {
+		type: \"World\",
+		grid: l
+		run: function(system) {return this.grid;},
+		execute: function(system, args) {return this;},
+	}
+}
+");
+
+world = World();

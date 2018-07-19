@@ -1,0 +1,18 @@
+del_sprites;$
+printcolor 0 0 0;$
+println "Initializing djPro's Text Engine";$
+println "Initializing mocqoro's Sound Engine";$
+println "Initializing MagicWars010098's 3D Engine";$
+println "Initializing OS-Lightning 0.3";$
+sleep 1;$
+fps 60;$
+clear;$
+@connect_to "gaia.com/Gadoran/gadoran.txt";$
+image text (cloudReturn) 0 0 0 0 1 0 | end 1;$
+speed = (2);$
+Sprite 1 -235 165 1 0 "if {(index 2 keys) == \"W\"} then move 0 (speed);$| if {(index 2 keys) == \"A\"} then move (0 - speed) 0;$| if {(index 2 keys) == \"S\"} then move 0 (0 - speed);$| if {(index 2 keys) == \"D\"} then move (speed) 0;$| if {(index 2 keys) == \"E\"} then goto_mark stopl;$| stop 0;$| mark stopl;$| stop_lightning;$| push 0;" end 1;$
+rot_var = (0);$
+y_sin = (0);$
+play_sound "startup.sound";$
+eval ("console.log('Hi')");$
+run_lightning;

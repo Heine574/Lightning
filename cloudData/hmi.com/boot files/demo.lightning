@@ -1,0 +1,18 @@
+del_sprites;$
+printcolor 0 0 0;$
+println "Initializing djPro's Text Engine";$
+println "Initializing mocqoro's Sound Engine";$
+println "Initializing MagicWars010098's 3D Engine";$
+println "Initializing OS-Lightning 0.3";$
+sleep 1;$
+clear;$
+@connect_to "Day.svg";$
+image svg Day.svg (cloudReturn) -240 180 | box -40 -40 40 40 0 | end 1;$
+#image box -40 -40 40 40 0 | end 1;$
+Sprite 1 0 0 1 0 "@home\bounce.script" end 1;$
+rot_var = (0);$
+y_sin = (0);$
+play_sound "startup.sound";$
+run_lightning;$
+wait 350;$
+stop_lightning;

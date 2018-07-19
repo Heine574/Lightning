@@ -1,0 +1,185 @@
+Verbs to be:
+	Singular:
+		e = (I) am
+		et = (you) are
+		em = (he/she/it) is
+	Plural:
+		re = (we) are
+		ret = (you) are
+		rem = (they) are
+
+Verbs:
+	Action verbs:
+		dur = love
+		mea = want
+		vul = like, enjoy
+		sesho = wither, crumble
+		jir = live
+		k'a = catch
+		tus = wield
+	
+	Descriptive:
+		nir = has, have
+		jiu = is like, like
+		//gem = is full of, is filled with
+		//mibo = is setting
+
+Prepositions:
+	qe = of
+	qus = by
+	iji = in
+	tos = for
+	kas = to
+	hajos = over
+	gutos = under
+	kij = on/about
+
+Articles
+	g'a/g'u/g'(g'e) = the (feminine/masculine/neuter)
+	j'a/j'u/j'(j'e) = a (feminine/masculine/neuter)
+	d'a/d'u/d'(d'e) = some/any (feminine/masculine/neuter)
+
+Conjunctions:
+	kaja = that
+	aijo = or
+	feje = and
+	toje = but
+	Lirn'em = because
+	aje = than
+	uja = if
+
+Pronouns:
+	zet = I
+	zin = you
+	aru/ara/ar = he/she/it
+	zei/zeai/zeei = we
+	zi/zai/zei = y'all
+	arei/arai/ari = they
+	arik = this
+	ariki = these
+	fu/fa = who
+	fi = which
+	
+Possessive pronouns:
+	zemos(a, u, i) = my (sing)
+	zemos(a, u, i) = my/mine (pl)
+
+Adverb:
+	nhur = just
+	lit = not
+	ucho = very
+	k'asi = there
+	ban = some
+	fitin = much
+	toi = ago
+
+Adjectives (feminine OR masculine/neuter):
+	oila/oil = outer, exterior
+	oistla/oistl = all of, reaching to the outer limits of
+	haiju/haij = big, tall, large
+	guitu/guit = small, short, little
+	cicelu/cicel = cold
+
+	lura/lur = real
+
+Colors:
+	sumoena/sumoen = blue (fem)
+	durqu/durq = black (masc)
+	jeeslie/jeeslin = pink (neut)
+	junokime/junokim = purple (fem)
+	caszinnoku/caszinnok = orange (masc)
+	vaznichu/vaznich = green (masc)
+	xandphu/xandph = dark (masc)
+	clazine/clazin = white (neut)
+	maqueza/maquez = brown (fem)
+	enfazgu/enfazg = red (masc)
+	jau/jaun = neon (masc)
+
+Greetings:
+	jundo = hello
+
+Nouns:
+	sing/plur = meaning (gender)
+	yurin/yuri = emperor, ruler (neuter)
+	dora/dorai = world (fem)
+	rapha/rphai = land, earth (fem)
+	loisteen/loistai = crystal (fem)
+	aven/avi = space, compartment (neuter)
+	thru/threi = power (masc)
+	weyre/weyrei = man (masc)
+	weyrear/weyreai = woman (fem)
+	myrn/myrnei = steak (masc)
+	najo/najei = boy (masc)
+	rel/relai = girl (fem)
+	soru/sorei = son (masc)
+	sora/sorai = daughter (fem)
+	kuheo/kuhei = fear (masc)
+	dirabhu/dirabhei = effort, work, action (masc)
+	zutur/zutai = whisper (fem)
+	duro/durai = love (fem)
+	kanoxu/kanoxai = spirit (fem)
+	osin/osi = cat, feline (neuter)
+	uosum/uosi = satellite (neuter)
+	tempa/tempai = moon (fem)
+	dociar/dociai = sun (fem)
+	ceyor/ceyorei = worth (masc)
+	xolda/xoldai = candy, sweets (fem)
+	iuet/iuei = sleep, rest (neuter)
+	vor/voi = machine, contraption (neuter)
+	(u?)il/ili = daemon
+	jiru/jirei = life
+	utof/utofi = fantasy (neuter)
+	grava/gavai = lightning (fem)
+	usor/uso = sword (neuter)
+	lita/litai = music (fem)
+	atij/ati = song (neuter)
+	togu/togei = story (masc)
+	maga/magai = time (fem)
+	izej/izi = town, village (neuter)
+	hidal/hidai = city (fem)
+	gratno/gratnei = dog (masc)
+	dlachna/dlachnai = mother (fem)
+	plochnu/plochnei = father (masc)
+	
+	
+	mij/miju/mija//mi/mei/mai = one, thing
+	
+
+Grammar:
+
+Verb bending:
+	past            = nire,  jiune,  qene,  geme,  seshone,  k'ane,  
+	past participle = nirel, jiunel, qenel, gemel, seshonel, k'anel, 
+	present         = nir,   jiu,    qe,    gem,   sesho,    k'a,    
+	future          = niri,  juini,  qeni,  gemi,  seshoni,  k'ani,  
+	gerund          = nira,  juina,  qena,  gema,  seshona,  k'ana,  
+
+G'eseshonelmij
+(G'e)(seshonel)(mij)
+the withered one
+
+oistl + aven = oistlaven
+(g')(oistlaven)(loisteen)(jiu)
+G'oistlavenloisteen'jiu
+
+(g'u)(loisteen)(dorá)(jiu) = the world that is like crystal
+
+(g'a)(thru)(dora')(nir) = ~~(the)~~(power)[that](the)(world)(has) = the world that has power
+OR
+(d'u)(thru) (kaja) (g'a)(dorá)(nir) = (some)(power)(that)(the)(world)(has)
+OR
+(g'a)(dorá) (kajá)(nir) (d'u)(thru) = (the)(world)(that)(has)(some)(power)
+
+(g'a)(dora) (thru)(nir) = the world has power
+
+(g'a)(dora) (kaja')(nir) (g'a)(thru)(loisteen')(nir) = the world that has the crystal that has power
+OR
+
+
+(g'a)(thru)(loisteen')(nir) (g'a)(dora')(nir) = the world has the crystal that has power
+(zet) (thru)(nir) = I have power
+
+(pronoun) (article)(adjectives)(noun)(verb)
+(zet) (g'a)(thru)(dora')(nir)
+(zet) (g'a)(thru')(nir) = i have the power
+(zet) (thru)(nir) = i have power

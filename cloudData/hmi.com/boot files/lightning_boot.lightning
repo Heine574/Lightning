@@ -1,0 +1,61 @@
+import("cloud:hmi.com/boot files/window manager.lib");
+clear();
+grad1 = struct(list(0, rgb(5, 5, 5)), list(0.2, rgb(5, 5, 5)), list(0.4, rgb(5, 5, 5)));
+flash_grad = gradient(0, -50, 0, 50, grad1);
+#backdrop = image(box(-240, -180, 240, 180, rgb(0, 0, 0)), box(-240, -180, 240, 0, rgb(40, 40, 40)));
+backdrop = image(box(-(screen_width/2), -(screen_height/2), screen_width/2, screen_height/2, rgb(5, 5, 5)));
+lightning_bolt = image(polygon(rgb(255, 255, 0), flash_grad,
+5, -50,
+0, -8,
+7, 5,
+-5, 50,
+-8, 8,
+-15, -5,
+5, -50
+));
+lightning_text = image(text("Lightning Graphics 0.5", 0, 225, "center", "#FFFF00", "70px sans-serif"));
+#img3 = image(text("Lightning Graphics", -100, 100, 0, 0, 2, (((255 * 65536) + (255 * 256)) + 0)));
+sprite1 = Sprite(0, 0, 0,         backdrop,   "none",          True,     3);
+#Syntax:         x, y, direction, costume,    any executable,  is shown? size;
+#In any function run by a Sprite, the first item of args will always be "self";
+sprite2 = Sprite(0, 0, 0, lightning_bolt, "none", True, 3);
+sprite3 = Sprite(0, 0, 0, lightning_text, "none", False, 1);
+load(sprite1);
+load(sprite2);
+load(sprite3);
+#sleep(1);
+rot_var = 0;
+y_sin = 0;
+play_sound("startup.sound");
+edit_color = eval("temp = function(system, args) {
+	system.sprites[args[0].run(system)].items.costume.value[args[1].run(system)].fillcolor = args[2].execute(system);
+	return AutoExp(system, \"True\");
+}");
+flash_speed = 0.02;
+flash_border = 0.05;
+i = 0;
+mark("loop1");
+flash_grad = gradient(
+0, -70, 0, 70, struct(list(0, "#FFFF00"), list(i, "#FFFFFF"), list(i + flash_border, rgb(5, 5, 5))));
+edit_color(2, 0, flash_grad);
+i = (i + flash_speed);
+wait(1);
+if(lesser_than(i, 0.2), goto_mark("loop1"));
+mark("loop2");
+flash_grad = gradient(
+0, -70, 0, 70, struct(list(i - 0.2, "#FFFF00"), list(i, "#FFFFFF"), list(i + flash_border, rgb(5, 5, 5))));
+edit_color(2, 0, flash_grad);
+i = (i + flash_speed);
+wait(1);
+if(lesser_than(i, (1 - flash_border)), goto_mark("loop2"));
+mark("loop3");
+flash_grad = gradient(0, -70, 0, 70, struct(list(i - 0.2, "#FFFF00"), list(i, "#FFFFFF"), list(1, rgb(5, 5, 5))));
+edit_color(2, 0, flash_grad);
+i = (i + flash_speed);
+wait(1);
+if(lesser_than(i + flash_speed, 1), goto_mark("loop3"));
+sleep(1);
+show(3);
+wait(1);
+sleep(1);
+#clear();

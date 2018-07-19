@@ -1,0 +1,10 @@
+del_sprites;$
+#source = (read_file flash.file);$
+source = (read_file "home\\taskbar.exe");$
+font = ("10px sans-serif");$
+source = (split source (dollar join " ") false);$
+i = (1);$
+mark loop1;$
+println (i join ": >>> " join (index i source));$
+i = (i + 1);$
+if {i <= (len source)} then goto_mark loop1;
