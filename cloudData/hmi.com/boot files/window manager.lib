@@ -3,6 +3,7 @@ println("\n	LOADING FILES");
 save_file("util.lib", load_file("cloud:hmi.com/util.lib"));
 save_file("vector.lib", load_file("cloud:hmi.com/vector.lib"));
 save_file("geometry.lib", load_file("cloud:hmi.com/geometry.lib"));
+save_file("startup.mp3", load_sound("/Lightning Startup.mp3"));
 #importing files;
 import("util.lib");
 clearShell();

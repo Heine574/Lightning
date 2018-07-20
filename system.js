@@ -359,8 +359,20 @@ OS = {
 			var l = args[0].execute(system).items;
 			return NumExpression(l.length);
 		}),
-		'': ScriptExpression(function(system, args) {}),
-		'': ScriptExpression(function(system, args) {}),
+		'load_sound': ScriptExpression(function(system, args) {
+			var audio = new Audio(args[0].run(system));
+			return {
+				type: "Sound",
+				data: audio,
+				run: function(system, args) {return this},
+				execute: function(system, args) {return this}
+			};
+		}),
+		'play_sound': ScriptExpression(function(system, args) {
+			var audio = open_file(system, args[0].run(system));
+			audio.data.play();
+			return BoolExpression("True");
+		}),
 		'': ScriptExpression(function(system, args) {}),
 		'': ScriptExpression(function(system, args) {}),
 		'': ScriptExpression(function(system, args) {}),

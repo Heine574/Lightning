@@ -18,6 +18,6 @@ save_file(index(i, boot_files), load_file(index(i, boot_files_paths)));
 println("	" + str(i + 1) + ". " + index(i, boot_files));
 i = (i + 1);
 if(lesser_than(i, len(boot_files)), goto_mark("loop1"));
-#input("\n	Choose from the list of avalible systems by typing in its number:\n     ");
-answer = 1;
+input("\n	Choose from the list of avalible systems by typing in its number:\n     ");
+#answer = 1;
 import(index(int(answer) - 1, boot_files));
