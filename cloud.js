@@ -11,8 +11,8 @@ function post(path, params) {
 	return xhttp.responseText;
 }
 
-function get(path, params, cache=true) {
-	console.log(path);
+function get(path, params, cache=true, responseType="text", async=false, system=null, tag="") {
+	console.log(path, params, cache, responseType, async, system, tag);
     var xhttp = new XMLHttpRequest();
 	if (cache) {
 		txt = ['t=' + Math.random().toString()];
@@ -23,9 +23,25 @@ function get(path, params, cache=true) {
 	for (i in params) {
 		txt.push(i + '=' + params[i]);
 	}
-	txt = "?" + txt.join('&')
-	xhttp.open("GET", path + txt, false);
+	xhttp.system = system;
+	xhttp.tag = tag;
+	if (async) {
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				console.log(this.response);
+				this.system.vars[tag] = {
+					type: "XMLHttpData",
+					data: this.response,
+					run: function(system) {return this.data;},
+					execute: function(system, args) {return this;}
+				}
+			}
+		};
+	}
+	txt = "?" + txt.join('&');
+	xhttp.open("GET", path + txt, async);
+	if (async) {xhttp.responseType = responseType;}
 	//xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send();
-	return xhttp.responseText;
+	if (!async) {return xhttp.responseText;}
 }

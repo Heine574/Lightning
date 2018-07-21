@@ -21,6 +21,7 @@ Status Codes:
 206 = run x ticks, then continue
 207 = go to mark x and continue
 208 = mark this line and continue
+209 = wait for file upload and continue
 
 400 = log error and continue
 
@@ -212,20 +213,40 @@ OS = {
 				str: function(system, args) {return this;}
 			}
 		}),
-		/*'bitmap': ScriptExpression(function(system, args) {
+		'bitmap': ScriptExpression(function(system, args) {
+			console.log(args);
+			console.log(system.vars["data"]);
 			for (var i = 0; i < args.length; i++) {
 				args[i] = args[i].execute(system);
 			}
 			
+			var data = args[0].run(system);
+			var arrayBufferView = new Uint8Array(data);
+			console.log(args[0]);
+			console.log(arrayBufferView);
+			//data = data.replace(/\\"/g, '"');
+
+			var DOMURL = window.URL || window.webkitURL || window;
+
+			var bmpimg = new Image();
+			var bmp = new Blob([arrayBufferView], {type: 'image/png'});
+			var url = DOMURL.createObjectURL(bmp);
+			
+			bmpimg.onload = function() {
+				DOMURL.revokeObjectURL(url);
+			}
+			
+			bmpimg.src = url;
+			
 			return {
 				type: "BitmapImage",
 				coords: args.slice(1, 3),
-				img: image2,
+				img: bmpimg,
 				run: function(system) {return this;},
 				execute: function(system, args) {return this;},
 				str: function(system, args) {return this;}
 			}
-		}),*/
+		}),
 		'svg': ScriptExpression(function(system, args) {
 			for (var i = 0; i < args.length; i++) {
 				args[i] = args[i].execute(system);
@@ -326,7 +347,25 @@ OS = {
 			return BoolExpression((b ? "True" : "False"));
 		}),
 		'fetch': ScriptExpression(function(system, args) {
-			return StringExpression(get(args[0].run(system)));
+			console.log(args, args.length);
+			if (args.length == 1) {
+				return StringExpression(get(args[0].run(system)));
+			} else if (args.length == 4) {
+				system.vars[args[3].run(system)] = "wait";
+				get(
+					args[0].run(system),
+					[],
+					true,
+					args[1].run(system),
+					args[2].run(system),
+					system,
+					args[3].run(system)
+				);
+				system.status = 209;
+				console.log(args[3].run(system), system.vars[args[3].run(system)]);
+				return args[3];
+			}
+			
 		}),
 		'save_file': ScriptExpression(function(system, args) {
 			system.files[args[0].run(system)] = args[1].run(system);
@@ -397,6 +436,7 @@ OS = {
 	marks: {},
 	objects: {},
 	fps: 16,
+	timeout: 0,
 	status: 200,
 	sys_info: [],
 	display_tasks: function() {
@@ -650,9 +690,11 @@ function run(system, ccode) {
 		//var canvas = document.getElementById("canvas");
 		//var ctx = canvas.getContext("2d");
 		while (system.tasks.length > system.code_i || (system.run_lightning.val && system.isTopSystem)) {
-			data = system.tasks[system.code_i].run(system);
-			system.code_i++;
-			//console.log(system.status, ID);
+			if (system.status == 200) {
+				data = system.tasks[system.code_i].run(system);
+				system.code_i++;
+				//console.log(system.status, ID);
+			}
 			if (system.status == 201) {//update
 				system.status = 200;
 				setTimeout(run, 0, system, null); //replace later
@@ -691,6 +733,16 @@ function run(system, ccode) {
 			if (system.status == 208) {//mark line
 				system.status = 200;
 				system.marks[data] = system.code_i;
+			}
+			if (system.status == 209) {//asynchronous fetch
+				console.log(data);
+				console.log(system.vars[data]);
+				if (system.vars[data] != "wait" || system.timeout > 20) {system.status = 200; system.timeout = 0;}
+				else {
+					system.timeout++;
+					setTimeout(run, 100, system, null); //replace later
+					break;
+				}
 			}
 			
 			/*if (system.run_lightning) {
