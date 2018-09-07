@@ -1,0 +1,67 @@
+#some util functions;
+script = eval("
+temp = function(system, args) {
+	console.log(\"temp = function(system, args) {\" + args[0].run(system) + \"}\");
+	return system.vars.eval.execute(system, [
+		StringExpression(\"temp = function(system, args) {\" + args[0].run(system) + \"}\")
+	]);
+}
+");
+
+#screen setup;
+background(rgb(255, 255, 255));
+set_screen = script("
+	system.vars.screen_height = NumExpression(window.innerHeight);
+	system.vars.screen_width = NumExpression(window.innerWidth);
+	return BoolExpression(\"True\");
+");
+set_screen();
+
+
+
+scriptBlock = script("
+	var x = args[0].execute(system);
+	var y = args[1].execute(system);
+	var direction = args[2].execute(system);
+	var costume = args[3].run(system);
+	var size = args[4].execute(system);
+	return {
+		type: \"ScriptBlock\",
+		items: {
+			x: x,
+			y: y, 
+			direction: direction,
+			costume: costume,
+			script: "none",
+			shown: NumExpression(1),
+			size: size
+		},
+		run: function(system) {return this.items;},
+		execute: function(system, args) {return this;},
+	};
+");
+
+moveSprite = script("
+	system.sprites[args[0].run(system)].items.x.num = args[1].run(system);
+	system.sprites[args[0].run(system)].items.y.num = args[2].run(system);
+	console.log(system.vars.mouseX.num, system.vars.mouseY.num);
+	return BoolExpression(\"True\");
+");
+log = script("
+	console.log(args[0].run(system));
+	return BoolExpression(\"True\");
+");
+
+blockImg = image(box(-50, -10, 50, 10, rgb(0, 0, 0)));
+block = scriptBlock(0, 0, 0, blockImg, 1);
+
+load(block);
+
+wait(1);
+
+mark("loop1");
+if(mouseDown, moveSprite(1, mouseX, mouseY));
+wait(1);
+if(getKey("E"), goto_mark("break1"));
+goto_mark("loop1");
+mark("break1");

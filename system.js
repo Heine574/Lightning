@@ -1,3 +1,4 @@
+//calculates mouse position for a spesific canvas
 function getMousePos( canvas, evt ) {
     var rect = canvas.getBoundingClientRect();
     return {
@@ -27,443 +28,464 @@ Status Codes:
 
 */
 
-OS = {
-	code_i: 0,
-	vars: {
-		'dollar': '$',
-		'timeRef': new Date(),
-		'font': StringExpression("15px sans-serif"),
-		'keys': [],
-		'wait': 0,
-		'indent': NumExpression(5),
-		'screen_height': NumExpression(360),
-		'screen_width': NumExpression(480),
-		'add': ScriptExpression(function(system, args) {
-			try {return args[0].execute(system).add(system, args[1].execute(system));}
-			catch(TypeError) {
-				return Raise(system,
-				"TypeError: operator '+' is undefined for type '" + args[0].execute(system).type + "'.").run(system);
-			}
-		}),
-		'subtract': ScriptExpression(function(system, args) {
-			try {return args[0].execute(system).subtract(system, args[1].execute(system));}
-			catch(TypeError) {
-				return Raise(system,
-				"TypeError: operator '-' is undefined for type '" + args[0].execute(system).type + "'.").run(system);
-			}
-		}),
-		'multiply': ScriptExpression(function(system, args) {
-			try {return args[0].execute(system).multiply(system, args[1].execute(system));}
-			catch(TypeError) {
-				return Raise(system,
-				"TypeError: operator '*' is undefined for type '" + args[0].execute(system).type + "'.").run(system);
-			}
-		}),
-		'divide': ScriptExpression(function(system, args) {
-			try {return args[0].execute(system).divide(system, args[1].execute(system));}
-			catch(TypeError) {
-				return Raise(system,
-				"TypeError: operator '/' is undefined for type '" + args[0].execute(system).type + "'.").run(system);
-			}
-		}),
-		'assign': ScriptExpression(function(system, args) {return AutoExp(system, system.vars[args[1].tag]=args[0].execute(system));}),
-		'eval': ScriptExpression(function(system, args) {return ScriptExpression(eval(args[0].run(system))).run(system);}),
-		'del_sprites': ScriptExpression(function(system, args) {system.sprites = [null]; return BoolExpression("True");}),
-		'println': ScriptExpression(function(system, args) {
-			//console.log(args[0].run(system));
-			var a = args[0].run(system);
-			if (typeof a == "string") {
-				system.shell = system.shell.concat(a.split('\n'));
-			} else {
-				system.shell.push(a);
-			}
-			run_text(system);
-			if (args.length > 1) {
-				if (args[1].run(system) == true) {
+//creates and returns a new lightning "machine", or process object
+function newSystem() {
+	return {
+		code_i: 0,
+		vars: {
+			'dollar': '$',
+			'timeRef': new Date(),
+			'font': StringExpression("15px sans-serif"),
+			'keys': [],
+			'wait': 0,
+			'indent': NumExpression(5),
+			'screen_height': NumExpression(360),
+			'screen_width': NumExpression(480),
+			'add': ScriptExpression(function(system, args) {
+				try {return args[0].execute(system).add(system, args[1].execute(system));}
+				catch(TypeError) {
+					return Raise(system,
+					"TypeError: operator '+' is undefined for type '" + args[0].execute(system).type + "'.").run(system);
+				}
+			}),
+			'subtract': ScriptExpression(function(system, args) {
+				try {return args[0].execute(system).subtract(system, args[1].execute(system));}
+				catch(TypeError) {
+					return Raise(system,
+					"TypeError: operator '-' is undefined for type '" + args[0].execute(system).type + "'.").run(system);
+				}
+			}),
+			'multiply': ScriptExpression(function(system, args) {
+				try {return args[0].execute(system).multiply(system, args[1].execute(system));}
+				catch(TypeError) {
+					return Raise(system,
+					"TypeError: operator '*' is undefined for type '" + args[0].execute(system).type + "'.").run(system);
+				}
+			}),
+			'divide': ScriptExpression(function(system, args) {
+				try {return args[0].execute(system).divide(system, args[1].execute(system));}
+				catch(TypeError) {
+					return Raise(system,
+					"TypeError: operator '/' is undefined for type '" + args[0].execute(system).type + "'.").run(system);
+				}
+			}),
+			'assign': ScriptExpression(function(system, args) {return AutoExp(system, system.vars[args[1].tag]=args[0].execute(system));}),
+			'eval': ScriptExpression(function(system, args) {return ScriptExpression(eval(args[0].run(system))).run(system);}),
+			'del_sprites': ScriptExpression(function(system, args) {system.sprites = [null]; return BoolExpression("True");}),
+			'println': ScriptExpression(function(system, args) {
+				//console.log(args[0].run(system));
+				var a = args[0].run(system);
+				if (typeof a == "string") {
+					system.shell = system.shell.concat(a.split('\n'));
+				} else {
+					system.shell.push(a);
+				}
+				run_text(system);
+				if (args.length > 1) {
+					if (args[1].run(system) == true) {
+						system.status = 201;
+					}
+				}
+				else {
 					system.status = 201;
 				}
-			}
-			else {
-				system.status = 201;
-			}
-			return StringExpression(a);
-		}),
-		'sleep': ScriptExpression(function(system, args) {system.status = 202; return NumExpression(args[0].run(system));}),
-		'clear': ScriptExpression(function(system, args) {
-			var canvas = document.getElementById("canvas");
-			var ctx = canvas.getContext("2d");
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			ctx.fillStyle=system.sys_vars.background;
-			ctx.fillRect(0, 0, canvas.width, canvas.height);
-			return BoolExpression("True");
-		}),
-		'str': ScriptExpression(function(system, args) {return args[0].execute(system).str(system);}),
-		'float': ScriptExpression(function(system, args) {return NumExpression(parseFloat(args[0].run(system)));}),
-		'int': ScriptExpression(function(system, args) {return NumExpression(parseInt(args[0].run(system)));}),
-		'list': ScriptExpression(function(system, args) {return ListExpression(args);}),
-		'struct': ScriptExpression(function(system, args) {
-			var t = {};
-			for (var i = 0; i < args.length; i++) {
-				t[args[i].execute(system).items[0].run(system)] = args[i].execute(system).items[1];
-			}
-			return StructExpression(t);
-		}),
-		'rgb': ScriptExpression(function(system, args) {
-			//return NumExpression(((args[0].run(system)*65536)+(args[1].run(system)*256)+args[2].run(system)));
-			return StringExpression(rgb(args[0].run(system), args[1].run(system), args[2].run(system)));
-		}),
-		'run': ScriptExpression(function(system, argsList) {
-			var exp = {
-				type: "Expression",
-				func: (argsList[0].type == "TagExpression") ? argsList[0]:argsList[0].execute(system),
-				args: argsList.slice(1, argsList.length),
-				run: function(system) {
-					//console.log(this.func);
-					d = run_function(system, this.func, this.args);
-					//console.log(d);
-					try {
-						return d.run(system);
-					}
-					catch (TypeError) {
-						run_function(system, TagExpression("println"), [StringExpression("TypeError: expression " + this.func.tag + " returned unexpected value " + d + ".")]);
-						return undefined;
-					}
-				},
-				execute: function(system, args) {
-					return run_function(system, this.func, this.args);
+				return StringExpression(a);
+			}),
+			'sleep': ScriptExpression(function(system, args) {system.status = 202; return NumExpression(args[0].run(system));}),
+			'clear': ScriptExpression(function(system, args) {
+				var canvas = system.canvas
+				var ctx = canvas.getContext("2d");
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.fillStyle=system.sys_vars.background;
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+				return BoolExpression("True");
+			}),
+			'str': ScriptExpression(function(system, args) {return args[0].execute(system).str(system);}),
+			'float': ScriptExpression(function(system, args) {return NumExpression(parseFloat(args[0].run(system)));}),
+			'int': ScriptExpression(function(system, args) {return NumExpression(parseInt(args[0].run(system)));}),
+			'list': ScriptExpression(function(system, args) {return ListExpression(args);}),
+			'struct': ScriptExpression(function(system, args) {
+				var t = {};
+				for (var i = 0; i < args.length; i++) {
+					t[args[i].execute(system).items[0].run(system)] = args[i].execute(system).items[1];
 				}
-			}
-			return exp.execute(system);
-		}),
-		'Sprite': ScriptExpression(function(system, args) {
-			return StructExpression({
-				x: args[0].execute(system),
-				y: args[1].execute(system),
-				direction: args[2].execute(system),
-				costume: args[3].run(system),
-				script: args[4].run(system),
-				shown: args[5].execute(system),
-				size: args[6].execute(system)
-			});
-		}),
-		'hide': ScriptExpression(function(system, args) {
-			system.sprites[args[0].run(system)].items.shown = BoolExpression("False");
-			return AutoExp(system, "True");
-		}),
-		'show': ScriptExpression(function(system, args) {
-			system.sprites[args[0].run(system)].items.shown = BoolExpression("True");
-			return AutoExp(system, "True");
-		}),
-		'load': ScriptExpression(function(system, args) {
-			system.sprites.push(args[0].execute(system));
-			return AutoExp(system, "True");
-		}),
-		'image': ScriptExpression(function(system, args) {
-			for (var i = 0; i < args.length; i++) {
-				args[i] = args[i].run(system);
-			}
-			return {
-				type: "Image",
-				value: args.slice(0, args.length),
-				run: function(system) {return this;},
-				execute: function(system, args) {return this;},
-				str: function(system, args) {return this;}
-			};
-		}),
-		'box': ScriptExpression(function(system, args) {
-			for (var i = 0; i < args.length; i++) {
-				args[i] = args[i].execute(system);
-			}
-			return {
-				type: "Box",
-				coords: args.slice(0, 4),
-				fillcolor: args[4].execute(system),
-				run: function(system) {return this;},
-				execute: function(system, args) {return this;},
-				str: function(system, args) {return this;}
-			}
-		}),
-		'text': ScriptExpression(function(system, args) {
-			for (var i = 0; i < args.length; i++) {
-				args[i] = args[i].execute(system);
-			}
-			return {
-				type: "Text",
-				text: args[0].execute(system),
-				coords: args.slice(1, 3),
-				align: args[3].execute(system),
-				fillcolor: args[4].execute(system),
-				font: args[5].execute(system),
-				run: function(system) {return this;},
-				execute: function(system, args) {return this;},
-				str: function(system, args) {return this.text.run(system);}
-			}
-		}),
-		'polygon': ScriptExpression(function(system, args) {
-			for (var i = 0; i < args.length; i++) {
-				args[i] = args[i].execute(system);
-			}
-			return {
-				type: "Polygon",
-				coords: args.slice(2, args.length),
-				edgecolor: args[0].execute(system),
-				fillcolor: args[1].execute(system),
-				run: function(system) {return this;},
-				execute: function(system, args) {return this;},
-				str: function(system, args) {return this;}
-			}
-		}),
-		'bitmap': ScriptExpression(function(system, args) {
-			console.log(args);
-			console.log(system.vars["data"]);
-			for (var i = 0; i < args.length; i++) {
-				args[i] = args[i].execute(system);
-			}
-			
-			var data = args[0].run(system);
-			var arrayBufferView = new Uint8Array(data);
-			console.log(args[0]);
-			console.log(arrayBufferView);
-			//data = data.replace(/\\"/g, '"');
-
-			var DOMURL = window.URL || window.webkitURL || window;
-
-			var bmpimg = new Image();
-			var bmp = new Blob([arrayBufferView], {type: 'image/png'});
-			var url = DOMURL.createObjectURL(bmp);
-			
-			bmpimg.onload = function() {
-				DOMURL.revokeObjectURL(url);
-			}
-			
-			bmpimg.src = url;
-			
-			return {
-				type: "BitmapImage",
-				coords: args.slice(1, 3),
-				img: bmpimg,
-				run: function(system) {return this;},
-				execute: function(system, args) {return this;},
-				str: function(system, args) {return this;}
-			}
-		}),
-		'svg': ScriptExpression(function(system, args) {
-			for (var i = 0; i < args.length; i++) {
-				args[i] = args[i].execute(system);
-			}
-			
-			var data = args[0].run(system);
-			//data = data.replace(/\\"/g, '"');
-
-			var DOMURL = window.URL || window.webkitURL || window;
-
-			var svgimg = new Image();
-			var svg = new Blob([data], {type: 'image/svg+xml'});
-			var url = DOMURL.createObjectURL(svg);
-			
-			svgimg.onload = function() {
-				DOMURL.revokeObjectURL(url);
-			}
-			
-			svgimg.src = url;
-			
-			return {
-				type: "SVGImage",
-				coords: args.slice(1, 3),
-				img: svgimg,
-				run: function(system) {return this;},
-				execute: function(system, args) {return this;},
-				str: function(system, args) {return this;}
-			};
-		}),
-		'input': ScriptExpression(function(system, args) {
-			var data = system.vars.println.execute(system, args);
-			system.status = 203;
-			return data;
-		}),
-		'function': ScriptExpression(function(system, args) {
-			return FunctionExpression(args[0], args.slice(1, args.length));
-		}),
-		'index': ScriptExpression(function(system, args) {return args[1].execute(system).items[args[0].run(OS)];}),
-		'attribute': ScriptExpression(function(system, args) {return args[1].execute(system)[args[0].run(OS)];}),
-		'edit_index': ScriptExpression(function(system, args) {
-			return AutoExp(system, args[1].execute(system).items[args[0].run(OS)] = args[2]);
-		}),
-		'run_lightning': ScriptExpression(function(system, args) {
-			system.status = 204;
-			return AutoExp(system, "True");
-		}),
-		'stop_lightning': ScriptExpression(function(system, args) {
-			system.status = 205;
-			return AutoExp(system, "True");
-		}),
-		'wait': ScriptExpression(function(system, args) {
-			system.status = 206;
-			return args[0];
-		}),
-		'fps': ScriptExpression(function(system, args) {
-			return AutoExp(system, system.fps = args[0].run(system));
-		}),
-		'gradient': ScriptExpression(function(system, args) {
-			var l = args[4].execute(system).keys();
-			var c=document.getElementById("canvas");
-			var ctx=c.getContext("2d");
-			var grad=ctx.createLinearGradient(args[0].run(system),args[1].run(system),args[2].run(system),args[3].run(system));
-			for (var i = 0; i < l.length; i++) {
-				grad.addColorStop(parseFloat(l[i]),args[4].execute(system).items[l[i]].run(system));
-			}
-			return {
-				type: "GradientExpression",
-				gradient: grad,
-				run: function(system) {return this.gradient},
-				execute: function(system, args) {return this}
-			};
-		}),
-		'goto_mark': ScriptExpression(function(system, args) {
-			system.status = 207;
-			return args[0];
-		}),
-		'mark': ScriptExpression(function(system, args) {
-			system.status = 208;
-			return args[0];
-		}),
-		'if': ScriptExpression(function(system, args) {
-			if (args[0].run(system)) {
-				return args[1].execute(system);
-			} else {
-				return AutoExp(system, "False");
-			}
-		}),
-		'greater_than': ScriptExpression(function(system, args) {
-			var b = args[0].run(system) > args[1].run(system);
-			return BoolExpression((b ? "True" : "False"));
-		}),
-		'lesser_than': ScriptExpression(function(system, args) {
-			var b = args[0].run(system) < args[1].run(system);
-			return BoolExpression((b ? "True" : "False"));
-		}),
-		'equal': ScriptExpression(function(system, args) {
-			var b = args[0].run(system) = args[1].run(system);
-			return BoolExpression((b ? "True" : "False"));
-		}),
-		'fetch': ScriptExpression(function(system, args) {
-			console.log(args, args.length);
-			if (args.length == 1) {
-				return StringExpression(get(args[0].run(system)));
-			} else if (args.length == 4) {
-				system.vars[args[3].run(system)] = "wait";
-				get(
-					args[0].run(system),
-					[],
-					true,
-					args[1].run(system),
-					args[2].run(system),
-					system,
-					args[3].run(system)
-				);
-				system.status = 209;
-				console.log(args[3].run(system), system.vars[args[3].run(system)]);
-				return args[3];
-			}
-			
-		}),
-		'save_file': ScriptExpression(function(system, args) {
-			system.files[args[0].run(system)] = args[1].run(system);
-			return AutoExp(system, "True");
-		}),
-		'load_file': ScriptExpression(function(system, args) {
-			return StringExpression(open_file(system, args[0].run(system)));
-		}),
-		'import': ScriptExpression(function(system, args) {
-			//console.log(args[0]);
-			var data = open_file(system, args[0].run(system));
-			var ccode = compile(system, data, ';');
-			if (ccode != null) {
-				for (var i = 0; i < ccode.length; i++) {
-					system.tasks.splice(system.code_i+1+i, 0, ccode[i]);
+				return StructExpression(t);
+			}),
+			'rgb': ScriptExpression(function(system, args) {
+				//return NumExpression(((args[0].run(system)*65536)+(args[1].run(system)*256)+args[2].run(system)));
+				return StringExpression(rgb(args[0].run(system), args[1].run(system), args[2].run(system)));
+			}),
+			'run': ScriptExpression(function(system, argsList) {
+				var exp = {
+					type: "Expression",
+					func: (argsList[0].type == "TagExpression") ? argsList[0]:argsList[0].execute(system),
+					args: argsList.slice(1, argsList.length),
+					run: function(system) {
+						//console.log(this.func);
+						d = run_function(system, this.func, this.args);
+						//console.log(d);
+						try {
+							return d.run(system);
+						}
+						catch (TypeError) {
+							run_function(system, TagExpression("println"), [StringExpression("TypeError: expression " + this.func.tag + " returned unexpected value " + d + ".")]);
+							return undefined;
+						}
+					},
+					execute: function(system, args) {
+						return run_function(system, this.func, this.args);
+					}
 				}
+				return exp.execute(system);
+			}),
+			'Sprite': ScriptExpression(function(system, args) {
+				return StructExpression({
+					x: args[0].execute(system),
+					y: args[1].execute(system),
+					direction: args[2].execute(system),
+					costume: args[3].run(system),
+					script: args[4].run(system),
+					shown: args[5].execute(system),
+					size: args[6].execute(system)
+				});
+			}),
+			'hide': ScriptExpression(function(system, args) {
+				system.sprites[args[0].run(system)].items.shown = BoolExpression("False");
+				return AutoExp(system, "True");
+			}),
+			'show': ScriptExpression(function(system, args) {
+				system.sprites[args[0].run(system)].items.shown = BoolExpression("True");
+				return AutoExp(system, "True");
+			}),
+			'load': ScriptExpression(function(system, args) {
+				system.sprites.push(args[0].execute(system));
+				return AutoExp(system, "True");
+			}),
+			'image': ScriptExpression(function(system, args) {
+				for (var i = 0; i < args.length; i++) {
+					args[i] = args[i].run(system);
+				}
+				return {
+					type: "Image",
+					value: args.slice(0, args.length),
+					run: function(system) {return this;},
+					execute: function(system, args) {return this;},
+					str: function(system, args) {return this;}
+				};
+			}),
+			'box': ScriptExpression(function(system, args) {
+				for (var i = 0; i < args.length; i++) {
+					args[i] = args[i].execute(system);
+				}
+				return {
+					type: "Box",
+					coords: args.slice(0, 4),
+					fillcolor: args[4].execute(system),
+					run: function(system) {return this;},
+					execute: function(system, args) {return this;},
+					str: function(system, args) {return this;}
+				}
+			}),
+			'text': ScriptExpression(function(system, args) {
+				for (var i = 0; i < args.length; i++) {
+					args[i] = args[i].execute(system);
+				}
+				return {
+					type: "Text",
+					text: args[0].execute(system),
+					coords: args.slice(1, 3),
+					align: args[3].execute(system),
+					fillcolor: args[4].execute(system),
+					font: args[5].execute(system),
+					run: function(system) {return this;},
+					execute: function(system, args) {return this;},
+					str: function(system, args) {return this.text.run(system);}
+				}
+			}),
+			'polygon': ScriptExpression(function(system, args) {
+				for (var i = 0; i < args.length; i++) {
+					args[i] = args[i].execute(system);
+				}
+				return {
+					type: "Polygon",
+					coords: args.slice(2, args.length),
+					edgecolor: args[0].execute(system),
+					fillcolor: args[1].execute(system),
+					run: function(system) {return this;},
+					execute: function(system, args) {return this;},
+					str: function(system, args) {return this;}
+				}
+			}),
+			'bitmap': ScriptExpression(function(system, args) {
+				console.log(args);
+				console.log(system.vars["data"]);
+				for (var i = 0; i < args.length; i++) {
+					args[i] = args[i].execute(system);
+				}
+				
+				var data = args[0].run(system);
+				var arrayBufferView = new Uint8Array(data);
+				console.log(args[0]);
+				console.log(arrayBufferView);
+				//data = data.replace(/\\"/g, '"');
+
+				var DOMURL = window.URL || window.webkitURL || window;
+
+				var bmpimg = new Image();
+				var bmp = new Blob([arrayBufferView], {type: 'image/png'});
+				var url = DOMURL.createObjectURL(bmp);
+				
+				bmpimg.onload = function() {
+					DOMURL.revokeObjectURL(url);
+				}
+				
+				bmpimg.src = url;
+				
+				return {
+					type: "BitmapImage",
+					coords: args.slice(1, 3),
+					img: bmpimg,
+					run: function(system) {return this;},
+					execute: function(system, args) {return this;},
+					str: function(system, args) {return this;}
+				}
+			}),
+			'svg': ScriptExpression(function(system, args) {
+				for (var i = 0; i < args.length; i++) {
+					args[i] = args[i].execute(system);
+				}
+				
+				var data = args[0].run(system);
+				//data = data.replace(/\\"/g, '"');
+
+				var DOMURL = window.URL || window.webkitURL || window;
+
+				var svgimg = new Image();
+				var svg = new Blob([data], {type: 'image/svg+xml'});
+				var url = DOMURL.createObjectURL(svg);
+				
+				svgimg.onload = function() {
+					DOMURL.revokeObjectURL(url);
+				}
+				
+				svgimg.src = url;
+				
+				return {
+					type: "SVGImage",
+					coords: args.slice(1, 3),
+					img: svgimg,
+					run: function(system) {return this;},
+					execute: function(system, args) {return this;},
+					str: function(system, args) {return this;}
+				};
+			}),
+			'input': ScriptExpression(function(system, args) {
+				var data = system.vars.println.execute(system, args);
+				system.status = 203;
+				return data;
+			}),
+			'function': ScriptExpression(function(system, args) {
+				return FunctionExpression(args[0], args.slice(1, args.length));
+			}),
+			'index': ScriptExpression(function(system, args) {return args[1].execute(system).items[args[0].run(system)];}),
+			'attribute': ScriptExpression(function(system, args) {return args[1].execute(system)[args[0].run(system)];}),
+			'edit_index': ScriptExpression(function(system, args) {
+				return AutoExp(system, args[1].execute(system).items[args[0].run(system)] = args[2]);
+			}),
+			'run_lightning': ScriptExpression(function(system, args) {
+				system.status = 204;
+				return AutoExp(system, "True");
+			}),
+			'stop_lightning': ScriptExpression(function(system, args) {
+				system.status = 205;
+				return AutoExp(system, "True");
+			}),
+			'wait': ScriptExpression(function(system, args) {
+				system.status = 206;
+				return args[0];
+			}),
+			'fps': ScriptExpression(function(system, args) {
+				return AutoExp(system, system.fps = args[0].run(system));
+			}),
+			'gradient': ScriptExpression(function(system, args) {
+				var l = args[4].execute(system).keys();
+				var c=system.canvas
+				var ctx=c.getContext("2d");
+				var grad=ctx.createLinearGradient(args[0].run(system),args[1].run(system),args[2].run(system),args[3].run(system));
+				for (var i = 0; i < l.length; i++) {
+					grad.addColorStop(parseFloat(l[i]),args[4].execute(system).items[l[i]].run(system));
+				}
+				return {
+					type: "GradientExpression",
+					gradient: grad,
+					run: function(system) {return this.gradient},
+					execute: function(system, args) {return this}
+				};
+			}),
+			'goto_mark': ScriptExpression(function(system, args) {
+				system.status = 207;
+				return args[0];
+			}),
+			'mark': ScriptExpression(function(system, args) {
+				system.status = 208;
+				return args[0];
+			}),
+			'if': ScriptExpression(function(system, args) {
+				if (args[0].run(system)) {
+					return args[1].execute(system);
+				} else {
+					return AutoExp(system, "False");
+				}
+			}),
+			'greater_than': ScriptExpression(function(system, args) {
+				var b = args[0].run(system) > args[1].run(system);
+				return BoolExpression((b ? "True" : "False"));
+			}),
+			'lesser_than': ScriptExpression(function(system, args) {
+				var b = args[0].run(system) < args[1].run(system);
+				return BoolExpression((b ? "True" : "False"));
+			}),
+			'equal': ScriptExpression(function(system, args) {
+				var b = args[0].run(system) == args[1].run(system);
+				return BoolExpression((b ? "True" : "False"));
+			}),
+			'fetch': ScriptExpression(function(system, args) {
+				console.log(args, args.length);
+				if (args.length == 1) {
+					return StringExpression(get(args[0].run(system)));
+				} else if (args.length == 4) {
+					system.vars[args[3].run(system)] = "wait";
+					get(
+						args[0].run(system),
+						[],
+						true,
+						args[1].run(system),
+						args[2].run(system),
+						system,
+						args[3].run(system)
+					);
+					system.status = 209;
+					console.log(args[3].run(system), system.vars[args[3].run(system)]);
+					return args[3];
+				}
+				
+			}),
+			'save_file': ScriptExpression(function(system, args) {
+				system.files[args[0].run(system)] = args[1].run(system);
+				return AutoExp(system, "True");
+			}),
+			'load_file': ScriptExpression(function(system, args) {
+				return StringExpression(open_file(system, args[0].run(system)));
+			}),
+			'import': ScriptExpression(function(system, args) {
+				//console.log(args[0]);
+				var data = open_file(system, args[0].run(system));
+				var ccode = compile(system, data, ';');
+				if (ccode != null) {
+					for (var i = 0; i < ccode.length; i++) {
+						system.tasks.splice(system.code_i+1+i, 0, ccode[i]);
+					}
+				}
+				return AutoExp(system, "True");
+
+			}),
+			'printcolor': ScriptExpression(function(system, args) {
+				system.sys_vars.printcolor = args[0].run(system);
+				return AutoExp(system, "True");
+			}),
+			'background': ScriptExpression(function(system, args) {
+				system.sys_vars.background = args[0].run(system);
+				return AutoExp(system, "True");
+			}),		
+			'len': ScriptExpression(function(system, args) {
+				var l = args[0].execute(system).items;
+				return NumExpression(l.length);
+			}),
+			'load_sound': ScriptExpression(function(system, args) {
+				var audio = new Audio(args[0].run(system));
+				return {
+					type: "Sound",
+					data: audio,
+					run: function(system, args) {return this},
+					execute: function(system, args) {return this}
+				};
+			}),
+			'play_sound': ScriptExpression(function(system, args) {
+				var audio = open_file(system, args[0].run(system));
+				audio.data.play();
+				return BoolExpression("True");
+			}),
+			'getKey': ScriptExpression(function(system, args) { //used to catch keypresses
+				var b = system.vars.keys.indexOf(args[0].run(system)) != -1;
+				return BoolExpression((b ? "True" : "False"));
+			}),
+			'': ScriptExpression(function(system, args) {}),
+			'': ScriptExpression(function(system, args) {}),
+			'': ScriptExpression(function(system, args) {}),
+			'': ScriptExpression(function(system, args) {}),
+
+		},
+		sys_vars: {},
+		files: {
+			
+		},
+		sprites: [null],
+		images: [null],
+		svgImages: {},
+		tasks: [],
+		stack: [],
+		lKeys: ['wait'],
+		run_lightning: false,
+		isTopSystem: true,
+		oldshell: [],
+		shell: [],
+		marks: {},
+		objects: {},
+		fps: 16,
+		timeout: 0,
+		status: 200,
+		sys_info: [],
+		display_tasks: function() {
+			var t = [];
+			for (var i = 0; i < this.tasks.length; i++) {
+				t.push(this.tasks[i].ref);
 			}
-			return AutoExp(system, "True");
-
-		}),
-		'printcolor': ScriptExpression(function(system, args) {
-			system.sys_vars.printcolor = args[0].run(system);
-			return AutoExp(system, "True");
-		}),
-		'background': ScriptExpression(function(system, args) {
-			system.sys_vars.background = args[0].run(system);
-			return AutoExp(system, "True");
-		}),		
-		'len': ScriptExpression(function(system, args) {
-			var l = args[0].execute(system).items;
-			return NumExpression(l.length);
-		}),
-		'load_sound': ScriptExpression(function(system, args) {
-			var audio = new Audio(args[0].run(system));
-			return {
-				type: "Sound",
-				data: audio,
-				run: function(system, args) {return this},
-				execute: function(system, args) {return this}
-			};
-		}),
-		'play_sound': ScriptExpression(function(system, args) {
-			var audio = open_file(system, args[0].run(system));
-			audio.data.play();
-			return BoolExpression("True");
-		}),
-		'': ScriptExpression(function(system, args) {}),
-		'': ScriptExpression(function(system, args) {}),
-		'': ScriptExpression(function(system, args) {}),
-		'': ScriptExpression(function(system, args) {}),
-		'': ScriptExpression(function(system, args) {}),
-
-	},
-	sys_vars: {},
-	files: {
-		
-	},
-	sprites: [null],
-	images: [null],
-	svgImages: {},
-	tasks: [],
-	stack: [],
-	lKeys: ['wait'],
-	run_lightning: false,
-	isTopSystem: true,
-	oldshell: [],
-	shell: [],
-	marks: {},
-	objects: {},
-	fps: 16,
-	timeout: 0,
-	status: 200,
-	sys_info: [],
-	display_tasks: function() {
-		var t = [];
-		for (var i = 0; i < this.tasks.length; i++) {
-			t.push(this.tasks[i].ref);
+			return t.join("\n");
 		}
-		return t.join("\n");
 	}
 };
 
-document.getElementById("canvas").addEventListener('mousemove', function(evt) {
-    var mousePos = getMousePos(canvas, evt);
-	OS.vars['mouseX'] = mousePos.x - 240;
-	OS.vars['mouseY'] = 360 - (mousePos.y + 180);
-} );
+//the global variable containing the default system
+OS = newSystem();
 
-var mouseDown = false;
-document.getElementById("canvas").onmousedown = function() { 
-  mouseDown = true;
-  OS.vars['mouseDown'] = mouseDown.toString();
-}
-document.getElementById("canvas").onmouseup = function() {
-  mouseDown = false;
-  OS.vars['mouseDown'] = mouseDown.toString();
+//sets up mouse detection for a specific canvas and system
+function setup_canvas(system, canvas) {
+	canvas.system = system;
+	system.canvas = canvas;
+
+	canvas.system.vars['mouseX'] = NumExpression(0);
+	canvas.system.vars['mouseY'] = NumExpression(0);
+
+	canvas.addEventListener('mousemove', function(evt) {
+	    var mousePos = getMousePos(canvas, evt);
+		canvas.system.vars['mouseX'].num = mousePos.x - Math.round(canvas.width/2);
+		canvas.system.vars['mouseY'].num = canvas.height - (mousePos.y + Math.round(canvas.height/2));
+	} );
+
+	canvas.system.vars['mouseDown'] = BoolExpression("False");
+
+	//var mouseDown = false;
+	canvas.onmousedown = function() { 
+	  //mouseDown = true;
+	  canvas.system.vars['mouseDown'].bool = true;//mouseDown.toString();
+	}
+	canvas.onmouseup = function() {
+	  //mouseDown = false;
+	  canvas.system.vars['mouseDown'].bool = false;//mouseDown.toString();
+	}
 }
 
+//translates a charCode into an ASCII character
 function getKey(charCode) {
 	var charStr;
 	var specialChars = {16:"SHIFT", 17:"CTRL", 18:"ALT", 13:"ENTER", 46:"DEL", 8:"BCKSPACE", 37:"LEFT", 38:"UP", 39:"RIGHT", 40:"DOWN", 186:";", 187:"=", 189:"-", 222:"'"}
@@ -476,6 +498,11 @@ function getKey(charCode) {
 	return charStr;
 }
 
+//OS.vars.keys = ListExpression([]);
+
+/*KEYPRESSES*/
+//these two fucntions capture keypresses for the default system, "OS". keypresses for other user-created systems is not supported
+//they add and remove the characters from a list at OS.vars.keys
 document.onkeydown = function(evt) {
     evt = evt || window.event;
     var charCode = evt.keyCode || evt.which;
@@ -504,6 +531,7 @@ var vars = "";
 		document.getElementById("data").innerHTML = vars;
 	}, 100);*/
 
+//math functions
 function componentToHex(c) {
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
@@ -517,6 +545,7 @@ function toRadians(angle) {
   return angle * (Math.PI / 180);
 }
 
+//screen functions
 function resizeScreen(system, canvas) {
 	var ratio = window.innerWidth/window.innerHeight
 	canvas.width = system.vars.screen_height.run(system)*ratio;
@@ -524,10 +553,11 @@ function resizeScreen(system, canvas) {
 	system.vars.screen_width = NumExpression(system.vars.screen_height.run(system)*ratio);
 }
 
+//text functions
 function run_text(system) {
-	var canvas = document.getElementById("canvas");
+	var canvas = system.canvas
 	var ctx = canvas.getContext("2d");
-	resizeScreen(system, canvas);
+	//resizeScreen(system, canvas);
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle=system.sys_vars.background;
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -567,6 +597,7 @@ function Shift(ch) {
 	}
 }
 
+//takes input from the user. Is called by the run loop
 function input(system, txt, a, lastkey, lkt) {
 	var specialChars = ["SHIFT", "CTRL", "ALT", "ENTER", "DEL", "BCKSPACE", "LEFT", "UP", "RIGHT", "DOWN"]
 	keys = system.vars.keys;
@@ -609,11 +640,15 @@ function input(system, txt, a, lastkey, lkt) {
 	}
 }
 
+//the function that actually renders the screen for a specific system
 function lightning(system) {
-	var canvas = document.getElementById("canvas");
+	var canvas = system.canvas
 	var ctx = canvas.getContext("2d");
 	ctx.setTransform(1,0,0,1,0,0);
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	//ctx.shadowBlur = 0;
+	//ctx.lineWidth = 0;
+	ctx.strokeStyle = system.sys_vars.background;
 	var img;
 	var shape;
 	var data;
@@ -621,12 +656,14 @@ function lightning(system) {
 	for (var i = 1; i < system.sprites.length; i++) {
 		if (system.sprites[i] != null && system.sprites[i].items.shown.run(system)) {
 			ctx.setTransform(1,0,0,1,
-			canvas.width/2 + system.sprites[i].items.x.run(system),
-			canvas.height/2 + (-(system.sprites[i].items.y.run(system)))
+			Math.round(canvas.width/2) + system.sprites[i].items.x.run(system),
+			Math.round(canvas.height/2) + (-(system.sprites[i].items.y.run(system)))
 			);
+			//console.log(Math.round(canvas.width/2) + system.sprites[i].items.x.run(system), Math.round(canvas.height/2) + (-(system.sprites[i].items.y.run(system))));
 			ctx.rotate(system.sprites[i].items.direction.run(system)*Math.PI/180);
 			size = system.sprites[i].items.size.run(system);
 			ctx.scale(size,size);
+			//console.log(size);
 			img = system.sprites[i].items.costume.value;
 			//console.log(system.sprites[i]);
 			for (var v = 0; v < img.length; v++) {
@@ -674,6 +711,7 @@ function lightning(system) {
 	setTimeout(run, (1 / system.fps) * 1000, system, null);
 }
 
+//the run loop. The entire system is controlled from here. Is called by the complie and start functions
 function run(system, ccode) {
 	if (ccode != null) {
 		for (var i = 0; i < ccode.length; i++) {
@@ -687,7 +725,7 @@ function run(system, ccode) {
 	}
 	else {
 		//var ID = Math.random();
-		//var canvas = document.getElementById("canvas");
+		//var canvas = system.canvas
 		//var ctx = canvas.getContext("2d");
 		while (system.tasks.length > system.code_i || (system.run_lightning.val && system.isTopSystem)) {
 			if (system.status == 200) {
@@ -774,9 +812,10 @@ function sleep(ms) {
     while(curDate-date < ms);
 }
 
+//compiles and runs the file on the given system. Must be called manually. (see index.html)
 function start(system, file) {
-	var ccode = compile(system, open_file(system, file), ";");
-	run(system, ccode);
+	var ccode = compile(system, open_file(system, file), ";"); //parses and compiles the file
+	run(system, ccode); //starts the run loop
 	//console.log(ccode);
 	if (system.status == 301) {
 		var inf = system.sys_info;
@@ -784,6 +823,7 @@ function start(system, file) {
 	}
 }
 
+//"compiles" the supplied lightning script code into a list of "executable" javascript objects
 function compile(system, code, sep) {
 	var pcode = [];
 	var ccode = "";
@@ -916,6 +956,7 @@ function get_var(system, tag) {
 	}
 }
 
+//raises an error
 function Raise(system, error) {
 	var exp = {
 		type: "Expression",
@@ -938,6 +979,7 @@ function Raise(system, error) {
 	return exp;
 }
 
+//detects the type of i and returns an expression
 function AutoExp(system, i) {
 	if (i[0] == '"' && i[i.length-1] == '"') {
 		return StringExpression(i.slice(1, -1))
@@ -990,6 +1032,7 @@ function AutoExp(system, i) {
 	}
 }
 
+//returns a string expression
 function StringExpression(str) {
 	return {
 		type: "StringExpression", string: str, run: function(system) {return this.string;},
@@ -1001,6 +1044,7 @@ function StringExpression(str) {
 		}};
 }
 
+//returns a sruct (object) expression
 function StructExpression(keyList) {
 	return {type: "StructExpression", items: keyList, run: function(system) {
 		return this.items;
@@ -1024,6 +1068,7 @@ function StructExpression(keyList) {
 	}};
 }
 
+//returns a list expression
 function ListExpression(i) {
 	return {type: "ListExpression", items: i, run: function(system) {
 		var l = [];
@@ -1036,12 +1081,14 @@ function ListExpression(i) {
 	str: function(system) {return StringExpression(this.items.toString());}};
 }
 
+//returns a tag expression
 function TagExpression(t) {
 	return {type: "TagExpression", tag: t, run: function(system) {return get_var(system, this.tag).run(system);},
 	execute: function(system, args) {return get_var(system, this.tag);},
 	str: function(system, args) {return StringExpression(this.tag);}};
 }
 
+//returns a script expression
 function ScriptExpression(f) {
 	return {type: "ScriptExpression", script: f, run: function(system) {return this;},
 	execute: function(system, args) {return this.script(system, args);},
@@ -1049,17 +1096,19 @@ function ScriptExpression(f) {
 }
 
 function FunctionExpression(args, f) {
-	return {type: "FunctionExpression", argslist: args.run(OS), code: f, run: function(system) {return this;},
+	return {type: "FunctionExpression", argslist: args.run(system), code: f, run: function(system) {return this;},
 	execute: function(system, args) {return this.script(system, args);},
 	str: function(system, args) {return StringExpression(this.code.toString());}};
 }
 
+//returns a boolean expression
 function BoolExpression(b) {
 	return {type: "BoolExpression", bool: (b == "True") ? true:false, run: function(system) {return this.bool;},
 	execute: function(system, args) {return this;},
 	str: function(system, args) {return StringExpression(this.bool.toString());}};
 }
 
+//returns a number expression
 function NumExpression(n) {
 	return {
 		type: "NumExpression", num: parseFloat(n), run: function(system) {return this.num;},
@@ -1273,6 +1322,7 @@ function replace_literals(ptree) {
 	}
 }
 
+//used to open a file from the server
 function open_file(system, file) {
 	//console.log(system);
 	if (file.split(":")[0] == "cloud") {
